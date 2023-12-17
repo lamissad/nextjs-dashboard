@@ -20,11 +20,7 @@ export default function LoginForm() {
   useEffect(() => {
     // Successfully logged with the provider
     // Now logging with strapi by using the access_token (given by the provider) in props.location.search
-    console.log('SEARCH...', location.search);
-    console.log(
-      'FETCHING...',
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
-    );
+
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
     )
@@ -32,7 +28,7 @@ export default function LoginForm() {
         if (res.status !== 200) {
           throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
         }
-        console.log(res);
+        console.log('RESULTTT v=>', res);
 
         return res;
       })
@@ -40,7 +36,7 @@ export default function LoginForm() {
       .then((res) => {
         // Successfully logged with Strapi
         // Now saving the jwt to use it for future authenticated requests to Strapi
-        console.log('JJJWWWW', res);
+        console.log('JJJWWWWTT', res);
         localStorage.setItem('jwt', res.jwt);
         localStorage.setItem('username', res.user.username);
         setText(
