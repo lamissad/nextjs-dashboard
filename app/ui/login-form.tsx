@@ -10,9 +10,57 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
+import { useEffect, useState } from 'react';
+import { redirect } from 'next/navigation';
 
 export default function LoginForm() {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+  const [text, setText] = useState('Loading...');
+
+  useEffect(() => {
+    // Successfully logged with the provider
+    // Now logging with strapi by using the access_token (given by the provider) in props.location.search
+    console.log('SEARCH...', location.search);
+    console.log(
+      'FETCHING...',
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
+    );
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
+    )
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
+        }
+        console.log(res);
+
+        return res;
+      })
+      .then((res) => res.json())
+      .then((res) => {
+        // Successfully logged with Strapi
+        // Now saving the jwt to use it for future authenticated requests to Strapi
+        console.log('JJJWWWW', res);
+        localStorage.setItem('jwt', res.jwt);
+        localStorage.setItem('username', res.user.username);
+        setText(
+          'You have been successfully logged in. You will be redirected in a few seconds...',
+        );
+        setTimeout(() => redirect('/dashboard'), 3000); // Redirect to homepage after 3 sec
+      })
+      .catch((err) => {
+        console.log(err);
+        setText('An error occurred, please see the developer console.');
+      });
+  }, []);
+
+  function handleGithubLogin(): void {
+    //fetch from strapi
+
+    const strapiConnectUrl =
+      'https://f465-2001-8f8-1a3f-cd2-dd41-fcca-77a-b1d5.ngrok-free.app/api/connect/github';
+    window.location.href = strapiConnectUrl;
+  }
 
   return (
     <form action={dispatch} className="space-y-3">
@@ -62,6 +110,10 @@ export default function LoginForm() {
           </div>
         </div>
         <LoginButton />
+        <Button className="mt-4 w-full" onClick={handleGithubLogin}>
+          Log in with github{' '}
+          <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+        </Button>
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
@@ -82,8 +134,10 @@ export default function LoginForm() {
 function LoginButton() {
   const { pending } = useFormStatus();
   return (
-    <Button className="mt-4 w-full" aria-disabled={pending}>
-      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-    </Button>
+    <>
+      <Button className="mt-4 w-full" aria-disabled={pending}>
+        Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+      </Button>
+    </>
   );
 }
