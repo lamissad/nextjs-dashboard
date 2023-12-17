@@ -46,6 +46,7 @@ export default function LoginForm() {
       })
       .catch((err) => {
         console.log(err);
+        console.log('An error occurred');
         setText('An error occurred, please see the developer console.');
       });
   }, []);
