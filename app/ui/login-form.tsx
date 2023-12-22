@@ -11,9 +11,11 @@ import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
 import { useEffect, useState } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
   const [text, setText] = useState('Loading...');
 
@@ -23,8 +25,10 @@ export default function LoginForm() {
 
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
+      { credentials: 'include' },
     )
       .then((res) => {
+        console.log('RES', res);
         if (res.status !== 200) {
           throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
         }
@@ -32,7 +36,10 @@ export default function LoginForm() {
 
         return res;
       })
-      .then((res) => res.json())
+      .then((res) => {
+        console.log('Response text:', res);
+        return res.json();
+      })
       .then((res) => {
         // Successfully logged with Strapi
         // Now saving the jwt to use it for future authenticated requests to Strapi
@@ -42,7 +49,8 @@ export default function LoginForm() {
         setText(
           'You have been successfully logged in. You will be redirected in a few seconds...',
         );
-        setTimeout(() => redirect('/dashboard'), 3000); // Redirect to homepage after 3 sec
+        // router.push('/dashboard');
+        router.push('/profile');
       })
       .catch((err) => {
         console.log(err);
@@ -54,8 +62,7 @@ export default function LoginForm() {
   function handleGithubLogin(): void {
     //fetch from strapi
 
-    const strapiConnectUrl =
-      'https://f465-2001-8f8-1a3f-cd2-dd41-fcca-77a-b1d5.ngrok-free.app/api/connect/github';
+    const strapiConnectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/connect/github`;
     window.location.href = strapiConnectUrl;
   }
 
