@@ -1,35 +1,113 @@
 'use client';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { use, useEffect, useState } from 'react';
-
-const ProfilePage: React.FC = () => {
-  const [user, setUser] = useState(null);
+const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-    })
-      .then((res) => {
-        console.log('RES', res);
-        if (res.status !== 200) {
-          throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
-        }
-        return res.json(); // Assuming the response is JSON. Don't forget to handle it accordingly.
-      })
-      .then((data) => {
-        console.log('RESULTTT v=>', data); // This will log the actual data from the response
-        setUser(data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, []);
+    if (jwt) {
+      setIsAuthenticated(true);
+    } else {
+      router.push('/login'); // Redirect to login page if not authenticated
+    }
+  }, [router]);
 
-  if (!user) {
+  return isAuthenticated;
+};
+
+const ProfilePage: React.FC = () => {
+  const isAuthenticated = useAuth();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isAuthenticated) return; // If not authenticated, exit the effect
+
+    const fetchUserData = async () => {
+      const jwt = localStorage.getItem('jwt');
+      try {
+        const userRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+          {
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${jwt}` },
+          },
+        );
+        if (!userRes.ok)
+          throw new Error(
+            `Couldn't fetch user data. Status: ${userRes.status}`,
+          );
+
+        const userData = await userRes.json();
+        const githubRes = await fetch(
+          `https://api.github.com/users/${userData.username}`,
+        );
+        if (!githubRes.ok)
+          throw new Error(
+            `Couldn't fetch GitHub data. Status: ${githubRes.status}`,
+          );
+
+        const githubData = await githubRes.json();
+        const repoRes = await fetch(
+          `https://api.github.com/users/${userData.username}/repos`,
+        );
+        const repos = await repoRes.json();
+        let starsCount = repos.reduce(
+          (acc, repo) => acc + repo.stargazers_count,
+          0,
+        );
+
+        let readmeContent = null;
+        if (repos.length > 0) {
+          const readmeRes = await fetch(
+            `https://api.github.com/repos/${userData.username}/${repos[0].name}/readme`,
+            {
+              headers: { Accept: 'application/vnd.github.VERSION.raw' },
+            },
+          );
+          if (readmeRes.ok) readmeContent = await readmeRes.text();
+        }
+
+        await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userData.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({
+              image: githubData.avatar_url,
+              followers: githubData.followers,
+              repository: githubData.public_repos,
+              stars: starsCount,
+              readme: readmeContent,
+            }),
+          },
+        );
+
+        setUser({
+          ...userData,
+          image: githubData.avatar_url,
+          followers: githubData.followers,
+          repository: githubData.public_repos,
+          stars: starsCount,
+          readme: readmeContent,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [isAuthenticated]);
+
+  if (loading || !isAuthenticated) {
     return <div>Loading...</div>;
   }
 
@@ -38,14 +116,20 @@ const ProfilePage: React.FC = () => {
       <div className="rounded-lg bg-white p-6 shadow-lg">
         <img
           className="mx-auto h-32 w-32 rounded-full"
-          src="https://avatars.githubusercontent.com/exampleuser"
+          src={
+            user.image || 'https://avatars.githubusercontent.com/exampleuser'
+          }
           alt="Profile Picture"
         />
-        <h2 className="mt-4 text-xl font-bold">{user?.username}</h2>
+        <h2 className="mt-4 text-xl font-bold">{user.username}</h2>
         <p className="text-gray-500">{user.email}</p>
+        <p>Followers: {user.followers}</p>
+        <p>Repositories: {user.repository}</p>
+        <p>Stars: {user.stars}</p>
+        {user.readme ? <pre>{user.readme}</pre> : <p>No README available</p>}
         <div className="mt-4">
           <a
-            href="https://github.com/exampleuser"
+            href={`https://github.com/${user.username}`}
             className="text-blue-500 hover:underline"
           >
             View GitHub Profile
