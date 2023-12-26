@@ -113,24 +113,30 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <div className="rounded-lg bg-white p-6 shadow-lg">
+      <div className="max-w-md rounded-lg bg-white p-6 shadow-lg">
         <img
-          className="mx-auto h-32 w-32 rounded-full"
+          className="mx-auto h-32 w-32 rounded-full object-cover"
           src={
             user.image || 'https://avatars.githubusercontent.com/exampleuser'
           }
           alt="Profile Picture"
         />
-        <h2 className="mt-4 text-xl font-bold">{user.username}</h2>
-        <p className="text-gray-500">{user.email}</p>
-        <p>Followers: {user.followers}</p>
-        <p>Repositories: {user.repository}</p>
-        <p>Stars: {user.stars}</p>
-        {user.readme ? <pre>{user.readme}</pre> : <p>No README available</p>}
-        <div className="mt-4">
+        <h2 className="mt-4 text-center text-xl font-bold">{user.username}</h2>
+        <p className="text-center text-gray-500">{user.email}</p>
+        <div className="mt-4 text-center">
+          <p>Followers: {user.followers}</p>
+          <p>Repositories: {user.repository}</p>
+          <p>Stars: {user.stars}</p>
+          {user.readme ? (
+            <div className="mt-4 overflow-auto">
+              <pre>{user.readme}</pre>
+            </div>
+          ) : (
+            <p>No README available</p>
+          )}
           <a
             href={`https://github.com/${user.username}`}
-            className="text-blue-500 hover:underline"
+            className="mt-4 inline-block text-blue-500 hover:underline"
           >
             View GitHub Profile
           </a>

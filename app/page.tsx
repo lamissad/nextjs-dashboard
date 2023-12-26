@@ -1,14 +1,7 @@
-import AcmeLogo from '@/app/ui/acme-logo';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { lusitana } from './ui/fonts';
-import Image from 'next/image';
-import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid';
-import { getUsers } from './lib/strapi/data';
+import { Suspense } from 'react';
+import UsersList from './users-list';
 
 export default async function Page() {
-  const users = await getUsers();
-  console.log(users);
   return (
     // <main className="flex min-h-screen flex-col p-6">
     //   <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
@@ -53,46 +46,9 @@ export default async function Page() {
     //   <div className="h-0 w-0 border-b-[30px] border-l-[20px] border-r-[20px] border-b-black border-l-transparent border-r-transparent" />
     // </main>
     <>
-      <h1>Users </h1>
-      <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {users &&
-          users.data.map((person) => (
-            <li
-              key={person.email}
-              className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
-            >
-              <div className="flex flex-1 flex-col p-8">
-                <h3 className="mt-6 text-sm font-medium text-gray-900">
-                  {person.name}
-                </h3>
-                <dl className="mt-1 flex flex-grow flex-col justify-between">
-                  <dt className="sr-only">Title</dt>
-                  <dd className="text-sm text-gray-500">{person.username}</dd>
-                  <dt className="sr-only">Role</dt>
-                  <dd className="mt-3">
-                    <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"></span>
-                  </dd>
-                </dl>
-              </div>
-              <div>
-                <div className="-mt-px flex divide-x divide-gray-200">
-                  <div className="flex w-0 flex-1">
-                    <a
-                      href={`mailto:${person.email}`}
-                      className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
-                    >
-                      <EnvelopeIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                      Email
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))}
-      </ul>
+      <Suspense fallback={<div>Loading...</div>}>
+        <UsersList />
+      </Suspense>
     </>
   );
 }
