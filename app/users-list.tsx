@@ -1,4 +1,5 @@
 import { EnvelopeIcon } from '@heroicons/react/20/solid';
+import Image from 'next/image';
 
 export default async function UsersList() {
   const defaultUsers = [
@@ -29,10 +30,17 @@ export default async function UsersList() {
                 className="overflow-hidden rounded-lg bg-white shadow transition-shadow duration-300 hover:shadow-lg"
               >
                 <div className="flex flex-col items-center p-4">
-                  <img
+                  {/* <img
                     src={person.image}
                     alt={person.username}
                     className="h-24 w-24 rounded-full object-cover"
+                  /> */}
+                  <Image
+                    src={person.image}
+                    alt={person.username}
+                    width={100}
+                    height={100}
+                    className="rounded-full"
                   />
                   <h3 className="mt-4 text-lg font-semibold text-gray-800">
                     {person.username}
