@@ -1,94 +1,43 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Repository, UserProfile } from '../lib/definitions';
+import { UserProfile } from '../lib/definitions';
+import { fetchGitHubData } from '../lib/strapi/github';
+import { getUser } from '../lib/strapi/data';
+import Image from 'next/image';
 
 const ProfilePage: React.FC = () => {
+  const defaultUser: UserProfile = {
+    username: 'Default User',
+    email: 'default@example.com',
+    image: 'https://avatars.githubusercontent.com/exampleuser',
+    followers: 0,
+    repository: 0,
+    stars: 0,
+    readme: 'Default README content',
+  };
   const [user, setUser] = useState<UserProfile | null>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // if (!isAuthenticated) return; // If not authenticated, exit the effect
 
-    const fetchUserData = async () => {
-      const jwt = localStorage.getItem('jwt');
-      try {
-        const userRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-          {
-            credentials: 'include',
-            headers: { Authorization: `Bearer ${jwt}` },
-          },
-        );
-        if (!userRes.ok)
-          throw new Error(
-            `Couldn't fetch user data. Status: ${userRes.status}`,
-          );
-
-        const userData = await userRes.json();
-        const githubRes = await fetch(
-          `https://api.github.com/users/${userData.username}`,
-        );
-        if (!githubRes.ok)
-          throw new Error(
-            `Couldn't fetch GitHub data. Status: ${githubRes.status}`,
-          );
-
-        const githubData = await githubRes.json();
-        const repoRes = await fetch(
-          `https://api.github.com/users/${userData.username}/repos`,
-        );
-        const repos = await repoRes.json();
-        let starsCount = repos.reduce(
-          (acc: number, repo: Repository) => acc + repo.stargazers_count,
-          0,
-        );
-
-        let readmeContent = null;
-        if (repos.length > 0) {
-          const readmeRes = await fetch(
-            `https://api.github.com/repos/${userData.username}/${repos[0].name}/readme`,
-            {
-              headers: { Accept: 'application/vnd.github.VERSION.raw' },
-            },
-          );
-          if (readmeRes.ok) readmeContent = await readmeRes.text();
-        }
-
-        await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userData.id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${jwt}`,
-            },
-            body: JSON.stringify({
-              image: githubData.avatar_url,
-              followers: githubData.followers,
-              repository: githubData.public_repos,
-              stars: starsCount,
-              readme: readmeContent,
-            }),
-          },
-        );
-
-        setUser({
-          ...userData,
-          image: githubData.avatar_url,
-          followers: githubData.followers,
-          repository: githubData.public_repos,
-          stars: starsCount,
-          readme: readmeContent,
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error('Error:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
+    loadProfile();
   }, []);
+
+  const loadProfile = async () => {
+    setLoading(true);
+    try {
+      const userData = await getUser();
+      const githubData = await fetchGitHubData(userData.username);
+      setUser(githubData);
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      setUser(defaultUser);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -96,42 +45,56 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      {user && (
-        <div className="flex h-screen items-center justify-center">
-          <div className="max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <img
-              className="mx-auto h-32 w-32 rounded-full object-cover"
-              src={
-                user.image ||
-                'https://avatars.githubusercontent.com/exampleuser'
-              }
-              alt="Profile Picture"
-            />
-            <h2 className="mt-4 text-center text-xl font-bold">
-              {user?.username}
-            </h2>
-            <p className="text-center text-gray-500">{user?.email}</p>
-            <div className="mt-4 text-center">
-              <p>Followers: {user.followers}</p>
-              <p>Repositories: {user.repository}</p>
-              <p>Stars: {user.stars}</p>
-              {user.readme ? (
-                <div className="mt-4 overflow-auto">
-                  <pre>{user.readme}</pre>
-                </div>
-              ) : (
-                <p>No README available</p>
-              )}
+      <div className="flex h-screen bg-gray-100">
+        {user && (
+          <div className="m-auto w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
+            <div className="flex items-center border-b border-gray-300 pb-4">
+              <Image
+                src={
+                  user.image ||
+                  'https://avatars.githubusercontent.com/exampleuser'
+                }
+                alt="Profile Picture"
+                width={100}
+                height={100}
+                className="rounded-full"
+              />
+              <div className="ml-4">
+                <h1 className="text-2xl font-bold">{user.username}</h1>
+                <p className="text-sm text-gray-600">{user.email}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <h2 className="text-lg font-semibold">Bio</h2>
+              <p className="text-gray-700">
+                {user.readme || 'No bio available'}
+              </p>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+              <div>
+                <h3 className="text-lg font-semibold">Followers</h3>
+                <p className="text-gray-700">{user.followers}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Repositories</h3>
+                <p className="text-gray-700">{user.repository}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Stars</h3>
+                <p className="text-gray-700">{user.stars}</p>
+              </div>
+            </div>
+            <div className="mt-6 text-center">
               <a
                 href={`https://github.com/${user.username}`}
-                className="mt-4 inline-block text-blue-500 hover:underline"
+                className="text-blue-600 hover:underline"
               >
                 View GitHub Profile
               </a>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };

@@ -1,26 +1,3 @@
-// export async function getUserDetails() {
-//     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`, {
-//         credentials: 'include',
-//         headers: {
-//             Authorization: `Bearer ${localStorage.getItem('jwt')}`
-//         },
-//     })
-//     .then((res) => {
-//         console.log('RES', res);
-//         if (res.status !== 200) {
-//             throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
-//         }
-//         return res.json(); // Assuming the response is JSON. Don't forget to handle it accordingly.
-//     })
-//     .then((data) => {
-//         console.log('RESULTTT v=>', data); // This will log the actual data from the response
-//     })
-//     .catch((error) => {
-//         console.error('Error:', error);
-//     });
-
-// }
-
 export async function getUsers() {
   try {
     const response = await fetch(
@@ -50,4 +27,23 @@ export async function getUsers() {
       error: error,
     };
   }
+}
+
+export async function getUser() {
+  const jwt = localStorage.getItem('jwt');
+  if (!jwt) {
+    throw new Error('JWT not found');
+  }
+
+  const userRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+    {
+      credentials: 'include',
+      headers: { Authorization: `Bearer ${jwt}` },
+    },
+  );
+  if (!userRes.ok) {
+    throw new Error(`Couldn't fetch user data. Status: ${userRes.status}`);
+  }
+  return await userRes.json();
 }

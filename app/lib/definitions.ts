@@ -99,5 +99,6 @@ export type UserProfile = {
 
 export type Repository = {
   stargazers_count: number;
+  name: string;
   // include other properties of the repository if needed
 };
