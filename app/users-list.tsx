@@ -1,5 +1,4 @@
 import { EnvelopeIcon } from '@heroicons/react/20/solid';
-import { getUsers } from './lib/strapi/data';
 
 export default async function UsersList() {
   const defaultUsers = [

@@ -47,3 +47,27 @@ export async function getUser() {
   }
   return await userRes.json();
 }
+
+export async function updateUser(data: any) {
+  const jwt = localStorage.getItem('jwt');
+  if (!jwt) {
+    throw new Error('JWT not found');
+  }
+
+  const userRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+    {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  if (!userRes.ok) {
+    throw new Error(`Couldn't update user data. Status: ${userRes.status}`);
+  }
+  return await userRes.json();
+}

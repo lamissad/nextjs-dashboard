@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { UserProfile } from '../lib/definitions';
 import { fetchGitHubData } from '../lib/strapi/github';
-import { getUser } from '../lib/strapi/data';
+import { getUser, updateUser } from '../lib/strapi/data';
 import Image from 'next/image';
+import { ArrowPathIcon } from '@heroicons/react/20/solid';
 
 const ProfilePage: React.FC = () => {
   const defaultUser: UserProfile = {
@@ -39,6 +40,20 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const refreshProfile = async () => {
+    setLoading(true);
+    try {
+      const userData = await getUser();
+      const githubData = await fetchGitHubData(userData.username);
+      setUser(githubData);
+      await updateUser(githubData); // Update user data in DB
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -48,21 +63,30 @@ const ProfilePage: React.FC = () => {
       <div className="flex h-screen bg-gray-100">
         {user && (
           <div className="m-auto w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
-            <div className="flex items-center border-b border-gray-300 pb-4">
-              <Image
-                src={
-                  user.image ||
-                  'https://avatars.githubusercontent.com/exampleuser'
-                }
-                alt="Profile Picture"
-                width={100}
-                height={100}
-                className="rounded-full"
-              />
-              <div className="ml-4">
-                <h1 className="text-2xl font-bold">{user.username}</h1>
-                <p className="text-sm text-gray-600">{user.email}</p>
+            <div className="flex items-center justify-between border-b border-gray-300 pb-4">
+              <div className="flex items-center">
+                <Image
+                  src={
+                    user.image ||
+                    'https://avatars.githubusercontent.com/exampleuser'
+                  }
+                  alt="Profile Picture"
+                  width={100}
+                  height={100}
+                  className="rounded-full"
+                />
+                <div className="ml-4">
+                  <h1 className="text-2xl font-bold">{user.username}</h1>
+                  <p className="text-sm text-gray-600">{user.email}</p>
+                </div>
               </div>
+              <button
+                onClick={refreshProfile}
+                className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              >
+                <ArrowPathIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                Profile
+              </button>
             </div>
             <div className="mt-4">
               <h2 className="text-lg font-semibold">Bio</h2>
