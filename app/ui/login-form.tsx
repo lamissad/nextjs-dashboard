@@ -10,64 +10,9 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import UserContext from '../lib/context/User';
 
 export default function LoginForm() {
-  const router = useRouter();
-  const userContext = useContext(UserContext);
-
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-  const [text, setText] = useState('Loading...');
-
-  useEffect(() => {
-    // Successfully logged with the provider
-    // Now logging with strapi by using the access_token (given by the provider) in props.location.search
-
-    fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
-      { credentials: 'include' },
-    )
-      .then((res) => {
-        console.log('RES', res);
-        if (res.status !== 200) {
-          throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
-        }
-        console.log('RESULTTT v=>', res);
-
-        return res;
-      })
-      .then((res) => {
-        console.log('Response text:', res);
-        return res.json();
-      })
-      .then((res) => {
-        // Successfully logged with Strapi
-        // Now saving the jwt to use it for future authenticated requests to Strapi
-        console.log('JJJWWWWTT', res);
-        localStorage.setItem('jwt', res.jwt);
-        localStorage.setItem('username', res.user.username);
-        userContext?.signIn({ name: res.user.username, loggedIn: true });
-        setText(
-          'You have been successfully logged in. You will be redirected in a few seconds...',
-        );
-        // router.push('/dashboard');
-        router.push('/profile');
-      })
-      .catch((err) => {
-        console.log(err);
-        console.log('An error occurred');
-        setText('An error occurred, please see the developer console.');
-      });
-  }, [router, userContext]);
-
-  function handleGithubLogin(): void {
-    //fetch from strapi
-
-    const strapiConnectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/connect/github`;
-    window.location.href = strapiConnectUrl;
-  }
 
   return (
     <form action={dispatch} className="space-y-3">
@@ -117,10 +62,6 @@ export default function LoginForm() {
           </div>
         </div>
         <LoginButton />
-        <Button className="mt-4 w-full" onClick={handleGithubLogin}>
-          Log in with github{' '}
-          <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-        </Button>
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
@@ -141,10 +82,8 @@ export default function LoginForm() {
 function LoginButton() {
   const { pending } = useFormStatus();
   return (
-    <>
-      <Button className="mt-4 w-full" aria-disabled={pending}>
-        Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-      </Button>
-    </>
+    <Button className="mt-4 w-full" aria-disabled={pending}>
+      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+    </Button>
   );
 }

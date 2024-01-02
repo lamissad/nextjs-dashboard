@@ -1,8 +1,6 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import { Metadata } from 'next';
-import Header from './ui/header';
-import { UserProvider } from './lib/context/User';
 
 export const metadata: Metadata = {
   title: {
@@ -19,14 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <UserProvider>
-          {' '}
-          {/* Wrap with UserProvider */}
-          <Header />
-          {children}
-        </UserProvider>
-      </body>
+      <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
 }
