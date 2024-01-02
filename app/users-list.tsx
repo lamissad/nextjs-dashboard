@@ -19,44 +19,39 @@ export default async function UsersList() {
   const users = { data: defaultUsers };
   return (
     <>
-      <div className="rounded-lg bg-white p-6 shadow-lg">
-        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {users &&
-            users.data &&
-            users.data.map((person: any) => (
-              <li
+      <div className="flex h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="mb-8  text-3xl font-bold text-gray-800">Our Team</h1>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {users.data.map((person) => (
+              <div
                 key={person.email}
-                className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+                className="overflow-hidden rounded-lg bg-white shadow transition-shadow duration-300 hover:shadow-lg"
               >
-                <div className="flex flex-1 flex-col p-8">
+                <div className="flex flex-col items-center p-4">
                   <img
-                    src={person.image || 'https://via.placeholder.com/150'}
+                    src={person.image}
                     alt={person.username}
-                    className="mx-auto h-24 w-24 rounded-full object-cover"
+                    className="h-24 w-24 rounded-full object-cover"
                   />
-                  <h3 className="mt-6 text-sm font-medium text-gray-900">
+                  <h3 className="mt-4 text-lg font-semibold text-gray-800">
                     {person.username}
                   </h3>
+                  <p className="text-gray-600">{person.email}</p>
                 </div>
-                <div>
-                  <div className="-mt-px flex divide-x divide-gray-200">
-                    <div className="flex w-0 flex-1">
-                      <a
-                        href={`mailto:${person.email}`}
-                        className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
-                      >
-                        <EnvelopeIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                        Email
-                      </a>
-                    </div>
-                  </div>
+                <div className="bg-gray-100 p-4">
+                  <a
+                    href={`mailto:${person.email}`}
+                    className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <EnvelopeIcon className="h-5 w-5" />
+                    Send Email
+                  </a>
                 </div>
-              </li>
+              </div>
             ))}
-        </ul>
+          </div>
+        </div>
       </div>
     </>
   );
