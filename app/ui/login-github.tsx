@@ -2,45 +2,45 @@
 
 import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-import UserContext from '../lib/context/User'; // Adjust the import path as needed
+import UserContext from '../lib/context/User';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
-export default function LoginWithGithub() {
+const LoginWithGithub = () => {
   const router = useRouter();
   const userContext = useContext(UserContext);
 
   useEffect(() => {
-    // Check if we have an access token in the URL (after redirection from GitHub)
+    const fetchUserDetails = async () => {
+      try {
+        const callbackUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`;
+        const response = await fetch(callbackUrl, { credentials: 'include' });
+
+        if (!response.ok) {
+          throw new Error(
+            `Couldn't login to Strapi. Status: ${response.status}`,
+          );
+        }
+
+        const userData = await response.json();
+        localStorage.setItem('jwt', userData.jwt);
+        localStorage.setItem('username', userData.user.username);
+
+        userContext?.signIn({ name: userData.user.username, loggedIn: true });
+        router.push('/profile');
+      } catch (error) {
+        console.error('An error occurred during login:', error);
+      }
+    };
+
     if (location.search.includes('access_token')) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/github/callback${location.search}`,
-        {
-          credentials: 'include',
-        },
-      )
-        .then((res) => {
-          if (res.status !== 200) {
-            throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((res) => {
-          localStorage.setItem('jwt', res.jwt);
-          localStorage.setItem('username', res.user.username);
-          userContext?.signIn({ name: res.user.username, loggedIn: true });
-          router.push('/profile'); // Redirect to the profile page after successful login
-        })
-        .catch((err) => {
-          console.error('An error occurred during login:', err);
-        });
+      fetchUserDetails();
     }
   }, [router, userContext]);
 
-  function handleGithubLogin() {
+  const handleGithubLogin = () => {
     const strapiConnectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/connect/github`;
-    window.location.href = strapiConnectUrl;
-  }
+    router.push(strapiConnectUrl);
+  };
 
   return (
     <div className="flex h-screen items-center justify-center">
@@ -53,4 +53,6 @@ export default function LoginWithGithub() {
       </button>
     </div>
   );
-}
+};
+
+export default LoginWithGithub;

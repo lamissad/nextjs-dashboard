@@ -86,3 +86,18 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+
+export type UserProfile = {
+  username: string;
+  email: string;
+  image: string;
+  followers: number;
+  repository: number;
+  stars: number;
+  readme: string | null;
+};
+
+export type Repository = {
+  stargazers_count: number;
+  // include other properties of the repository if needed
+};

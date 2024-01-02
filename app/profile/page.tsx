@@ -1,30 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      setIsAuthenticated(true);
-    } else {
-      router.push('/login'); // Redirect to login page if not authenticated
-    }
-  }, [router]);
-
-  return isAuthenticated;
-};
+import { Repository, UserProfile } from '../lib/definitions';
 
 const ProfilePage: React.FC = () => {
-  const isAuthenticated = useAuth();
-  const [user, setUser] = useState();
+  const [user, setUser] = useState<UserProfile | null>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) return; // If not authenticated, exit the effect
+    // if (!isAuthenticated) return; // If not authenticated, exit the effect
 
     const fetchUserData = async () => {
       const jwt = localStorage.getItem('jwt');
@@ -56,7 +39,7 @@ const ProfilePage: React.FC = () => {
         );
         const repos = await repoRes.json();
         let starsCount = repos.reduce(
-          (acc, repo) => acc + repo.stargazers_count,
+          (acc: number, repo: Repository) => acc + repo.stargazers_count,
           0,
         );
 
@@ -105,9 +88,9 @@ const ProfilePage: React.FC = () => {
     };
 
     fetchUserData();
-  }, [isAuthenticated]);
+  }, []);
 
-  if (loading || !isAuthenticated) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
