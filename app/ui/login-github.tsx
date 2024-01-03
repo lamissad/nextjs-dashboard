@@ -4,6 +4,7 @@ import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserContext from '../lib/context/User';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
+import { Button } from '@/components/ui/button';
 
 const LoginWithGithub = () => {
   const router = useRouter();
@@ -43,14 +44,20 @@ const LoginWithGithub = () => {
   };
 
   return (
+    // <div className="flex h-screen items-center justify-center">
+    //   <button
+    //     onClick={handleGithubLogin}
+    //     className="flex items-center rounded-md border border-transparent bg-gray-800 px-6 py-3 text-base font-medium text-white hover:bg-gray-700"
+    //   >
+    //     Log in with GitHub
+    //     <ArrowRightIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+    //   </button>
+    // </div>
     <div className="flex h-screen items-center justify-center">
-      <button
-        onClick={handleGithubLogin}
-        className="flex items-center rounded-md border border-transparent bg-gray-800 px-6 py-3 text-base font-medium text-white hover:bg-gray-700"
-      >
+      <Button onClick={handleGithubLogin} color="gray">
         Log in with GitHub
         <ArrowRightIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-      </button>
+      </Button>
     </div>
   );
 };
