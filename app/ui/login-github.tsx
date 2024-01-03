@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import UserContext from '../lib/context/User';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 const LoginWithGithub = () => {
   const router = useRouter();
@@ -44,12 +45,16 @@ const LoginWithGithub = () => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <Button onClick={handleGithubLogin} className="">
-        Log in with GitHub
-        <ArrowRightIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-      </Button>
-    </div>
+    <>
+      <Card className="flex h-1/2 w-1/2 flex-col items-center justify-center p-20 text-center ">
+        {/* <h1 className="mb-4">Welcome to Our App</h1> */}
+        <p className="mb-8">Log in with your GitHub account to get started</p>
+        <Button onClick={handleGithubLogin} size="lg">
+          Log in with GitHub
+          <ArrowRightIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+        </Button>
+      </Card>
+    </>
   );
 };
 

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card } from '@/components/ui/card';
 
 const ProfilePage: React.FC = () => {
   const defaultUser: UserProfile = {
@@ -62,12 +63,12 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-screen bg-gray-100">
+      <div className="flex h-screen justify-center bg-gray-100">
         {user && (
-          <div className="m-auto w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
+          <Card className="my-10 w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between border-b border-gray-300 pb-4">
               <div className="flex items-center">
-                {/* <Image
+                <Image
                   src={
                     user.image ||
                     'https://avatars.githubusercontent.com/exampleuser'
@@ -76,18 +77,7 @@ const ProfilePage: React.FC = () => {
                   width={100}
                   height={100}
                   className="rounded-full"
-                /> */}
-                <Avatar>
-                  <AvatarImage
-                    className="rounded-full"
-                    src={
-                      user.image ||
-                      'https://avatars.githubusercontent.com/exampleuser'
-                    }
-                    alt="profile picture"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
+                />
                 <div className="ml-4">
                   <h1 className="text-2xl font-bold">{user.username}</h1>
                   <p className="text-sm text-gray-600">{user.email}</p>
@@ -101,35 +91,36 @@ const ProfilePage: React.FC = () => {
                 Profile
               </Button>
             </div>
-            <div className="mt-4">
+
+            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-gray-700">{user.followers}</p>
+                <h3 className="text-lg font-semibold">Followers</h3>
+              </div>
+              <div>
+                <p className="text-gray-700">{user.repository}</p>
+                <h3 className="text-lg font-semibold">Repositories</h3>
+              </div>
+              <div>
+                <p className="text-gray-700">{user.stars}</p>
+                <h3 className="text-lg font-semibold">Stars</h3>
+              </div>
+            </div>
+            <div className="mt-5">
               <h2 className="text-lg font-semibold">Bio</h2>
               <p className="text-gray-700">
                 {user.readme || 'No bio available'}
               </p>
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-              <div>
-                <h3 className="text-lg font-semibold">Followers</h3>
-                <p className="text-gray-700">{user.followers}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Repositories</h3>
-                <p className="text-gray-700">{user.repository}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Stars</h3>
-                <p className="text-gray-700">{user.stars}</p>
-              </div>
-            </div>
-            <div className="mt-6 text-center">
+            {/* <div className="mt-6 text-center">
               <a
                 href={`https://github.com/${user.username}`}
                 className="text-blue-600 hover:underline"
               >
                 View GitHub Profile
               </a>
-            </div>
-          </div>
+            </div> */}
+          </Card>
         )}
       </div>
     </>

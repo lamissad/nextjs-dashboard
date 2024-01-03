@@ -20,7 +20,7 @@ export default async function UsersList() {
   const users = { data: defaultUsers };
   return (
     <>
-      <div className="flex h-screen bg-gray-50">
+      <div className="bg-custom-beige flex h-screen">
         <div className="container mx-auto px-4 py-8">
           <h1 className="mb-8  text-3xl font-bold text-gray-800">Our Team</h1>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
