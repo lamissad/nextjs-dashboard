@@ -30,11 +30,6 @@ export default async function UsersList() {
                 className="overflow-hidden rounded-lg bg-white shadow transition-shadow duration-300 hover:shadow-lg"
               >
                 <div className="flex flex-col items-center p-4">
-                  {/* <img
-                    src={person.image}
-                    alt={person.username}
-                    className="h-24 w-24 rounded-full object-cover"
-                  /> */}
                   <Image
                     src={person.image}
                     alt={person.username}
