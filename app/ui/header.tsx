@@ -18,7 +18,7 @@ export default function Header() {
   const userContext = useContext(UserContext);
   //   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isLoggedIn = userContext?.user?.loggedIn;
-
+  const isLoading = userContext?.loading;
   //   useEffect(() => {
   //     const token = localStorage.getItem('jwt');
   //     setIsLoggedIn(!!token);
@@ -69,29 +69,30 @@ export default function Header() {
           </button>
         </div>
         <div className="hidden lg:flex">
-          {isLoggedIn ? (
-            <>
-              {/* <Link
+          {!isLoading &&
+            (isLoggedIn ? (
+              <>
+                {/* <Link
                 href="/profile"
                 className="text-sm font-semibold leading-6 text-gray-900"
               >
                 Profile
               </Link> */}
-              <button
-                onClick={handleLogout}
-                className="ml-4 text-sm font-semibold leading-6 text-gray-900"
+                <button
+                  onClick={handleLogout}
+                  className="ml-4 text-sm font-semibold leading-6 text-gray-900"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm font-semibold leading-6 text-gray-900"
               >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className="text-sm font-semibold leading-6 text-gray-900"
-            >
-              Log in <span aria-hidden="true">&rarr;</span>
-            </Link>
-          )}
+                Log in <span aria-hidden="true">&rarr;</span>
+              </Link>
+            ))}
         </div>
       </nav>
       <Dialog

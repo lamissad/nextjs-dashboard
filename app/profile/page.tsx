@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { use, useContext, useEffect, useState } from 'react';
 import { UserProfile } from '../lib/definitions';
 import { fetchGitHubData } from '../lib/strapi/github';
 import { getUser, updateUser } from '../lib/strapi/data';
@@ -8,6 +8,8 @@ import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
+import UserContext from '../lib/context/User';
+import { useRouter } from 'next/navigation';
 
 const ProfilePage: React.FC = () => {
   const defaultUser: UserProfile = {
@@ -21,23 +23,31 @@ const ProfilePage: React.FC = () => {
   };
   const [user, setUser] = useState<UserProfile | null>();
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const userContext = useContext(UserContext);
+  const isLoggedIn = userContext?.user?.loggedIn;
 
   useEffect(() => {
-    // if (!isAuthenticated) return; // If not authenticated, exit the effect
+    if (!isLoggedIn) router.push('/login');
 
     loadProfile();
-  }, []);
+  }, [isLoggedIn, router]);
 
   const loadProfile = async () => {
     setLoading(true);
+    console.log('Loading profile...');
     try {
       const userData = await getUser();
+      console.log(userData);
       const githubData = await fetchGitHubData(userData.username);
-      setUser(githubData);
+      console.log(githubData);
+      setUser(githubData ? githubData : userData);
+      console.log(githubData);
     } catch (error) {
       console.error('Error:', error);
       setLoading(false);
-      setUser(defaultUser);
+      // setUser(defaultUser);
     } finally {
       setLoading(false);
     }
@@ -47,6 +57,7 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const userData = await getUser();
+      console.log(userData);
       const githubData = await fetchGitHubData(userData.username);
       setUser(githubData);
       await updateUser(githubData); // Update user data in DB
@@ -63,7 +74,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <div className="flex h-screen justify-center bg-gray-100">
+      <div className="flex h-full justify-center bg-gray-100">
         {user && (
           <Card className="my-10 w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between border-b border-gray-300 pb-4">
@@ -112,14 +123,6 @@ const ProfilePage: React.FC = () => {
                 {user.readme || 'No bio available'}
               </p>
             </div>
-            {/* <div className="mt-6 text-center">
-              <a
-                href={`https://github.com/${user.username}`}
-                className="text-blue-600 hover:underline"
-              >
-                View GitHub Profile
-              </a>
-            </div> */}
           </Card>
         )}
       </div>

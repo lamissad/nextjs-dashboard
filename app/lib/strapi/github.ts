@@ -4,10 +4,11 @@ import { Repository, UserProfile } from '../definitions';
 
 export const fetchGitHubUserProfile = async (
   username: string,
-): Promise<UserProfile> => {
+): Promise<UserProfile | null> => {
   const response = await fetch(`https://api.github.com/users/${username}`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch GitHub user. Status: ${response.status}`);
+    // throw new Error(`Failed to fetch GitHub user. Status: ${response.status}`);
+    return null;
   }
   const data = await response.json();
   return {
@@ -23,12 +24,13 @@ export const fetchGitHubUserProfile = async (
 
 export const fetchGitHubUserRepos = async (
   username: string,
-): Promise<Repository[]> => {
+): Promise<Repository[] | null> => {
   const response = await fetch(
     `https://api.github.com/users/${username}/repos`,
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch GitHub repos. Status: ${response.status}`);
+    // throw new Error(`Failed to fetch GitHub repos. Status: ${response.status}`);
+    return null;
   }
   return response.json();
 };
@@ -44,15 +46,23 @@ export const fetchGitHubRepoReadme = async (
     },
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch README. Status: ${response.status}`);
+    // throw new Error(`Failed to fetch README. Status: ${response.status}`);
+    return '';
   }
   return response.text();
 };
 
-export async function fetchGitHubData(username: string): Promise<UserProfile> {
+export async function fetchGitHubData(
+  username: string,
+): Promise<UserProfile | null> {
+  if (!username) {
+    return null;
+  }
   const userProfile = await fetchGitHubUserProfile(username);
   const userRepos = await fetchGitHubUserRepos(username);
-
+  if (!userProfile || !userRepos) {
+    return null;
+  }
   const starsCount = userRepos.reduce(
     (acc, repo) => acc + repo.stargazers_count,
     0,
@@ -61,7 +71,7 @@ export async function fetchGitHubData(username: string): Promise<UserProfile> {
   if (userRepos.length > 0) {
     readmeContent = await fetchGitHubRepoReadme(username, userRepos[0].name);
   }
-
+  console.log(userProfile);
   return {
     ...userProfile,
     stars: starsCount,
