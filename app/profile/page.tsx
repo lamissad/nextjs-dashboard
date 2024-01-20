@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import UserContext from '../lib/context/User';
 import { useRouter } from 'next/navigation';
-import { set } from 'zod';
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>();
@@ -20,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const isLoggedIn = userContext?.user?.loggedIn;
 
   useEffect(() => {
+    // TODO: Move it to middleware
     if (!isLoggedIn) router.push('/login');
 
     loadProfile();
@@ -38,8 +38,16 @@ const ProfilePage: React.FC = () => {
       }
       setUser(githubData as UserProfile);
     } catch (error) {
-      console.error('Error:', error);
       setLoading(false);
+      return (
+        // TODO: Create a component for this
+        <div className="flex h-full justify-center bg-gray-100">
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="text-3xl font-bold">Error</h1>
+            <p className="text-gray-600">Something went wrong</p>
+          </div>
+        </div>
+      );
     } finally {
       setLoading(false);
     }
@@ -62,6 +70,7 @@ const ProfilePage: React.FC = () => {
   };
 
   if (loading) {
+    // TODO: Use suspense and wrap this component
     return <div>Loading...</div>;
   }
 
