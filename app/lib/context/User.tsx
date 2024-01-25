@@ -11,7 +11,7 @@ type UserContextType = {
   user: User;
   signIn: (userData: User) => void;
   signOut: () => void;
-  loading: true;
+  loading: boolean;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -21,6 +21,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     // Check if user data is stored in localStorage
     const savedUser = localStorage.getItem('user');
