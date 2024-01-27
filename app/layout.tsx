@@ -2,7 +2,7 @@ import './globals.css';
 import { inter } from '@/app/ui/fonts';
 import { Metadata } from 'next';
 import Header from './ui/header';
-import { UserProvider } from './lib/context/User';
+import { CookiesProvider } from 'next-client-cookies/server';
 
 export const metadata: Metadata = {
   title: {
@@ -20,12 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <UserProvider>
+        <CookiesProvider>
           {' '}
           {/* Wrap with UserProvider */}
           <Header />
           {children}
-        </UserProvider>
+        </CookiesProvider>
       </body>
     </html>
   );
