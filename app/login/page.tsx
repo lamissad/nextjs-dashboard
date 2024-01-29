@@ -17,7 +17,7 @@ export default function LoginPage({
         backgroundSize: 'cover',
       }}
     >
-      <LoginWithGithub token={searchParams} />
+      <LoginWithGithub />
     </main>
   );
 }

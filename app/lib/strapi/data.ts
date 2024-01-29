@@ -29,8 +29,8 @@ export async function getUsers() {
   }
 }
 
-export async function getUser() {
-  const jwt = localStorage.getItem('jwt');
+export async function getUser(jwt: string) {
+  // const jwt = localStorage.getItem('jwt');
   if (!jwt) {
     throw new Error('JWT not found');
   }
@@ -48,26 +48,36 @@ export async function getUser() {
   return await userRes.json();
 }
 
-export async function updateUser(data: any) {
-  const jwt = localStorage.getItem('jwt');
+export async function updateUser(data: any, jwt: string, id: number) {
+  console.log('updateUser', data, jwt);
   if (!jwt) {
     throw new Error('JWT not found');
   }
-
-  const userRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-    {
-      method: 'PUT',
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        'Content-Type': 'application/json',
+  try {
+    const userRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${id}`,
+      {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       },
-      body: JSON.stringify(data),
-    },
-  );
-  if (!userRes.ok) {
-    throw new Error(`Couldn't update user data. Status: ${userRes.status}`);
+    );
+    console.log(
+      'url',
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${id}`,
+    );
+    console.log('userRes', userRes);
+
+    if (!userRes.ok) {
+      throw new Error(`Couldn't update user data. Status: ${userRes.status}`);
+    }
+
+    return await userRes.json();
+  } catch (error) {
+    console.log('error update', error);
   }
-  return await userRes.json();
 }

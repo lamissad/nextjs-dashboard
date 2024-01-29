@@ -1,4 +1,9 @@
 export const fetchGitHubUserProfile = async (username: string) => {
+  console.log('fetchGitHubUserProfile', username);
+  console.log(
+    'fetchGitHubUserProfile',
+    `https://api.github.com/users/${username}`,
+  );
   try {
     const response = await fetch(`https://api.github.com/users/${username}`);
     if (!response.ok) {
@@ -69,11 +74,13 @@ export const fetchGitHubRepoReadme = async (
 };
 
 export async function fetchGitHubData(username: string) {
+  console.log('fetchGitHubData', username);
   if (!username) {
     return { data: null, error: 'Username is required' };
   }
 
   const userProfileResponse = await fetchGitHubUserProfile(username);
+  console.log('userProfileResponse', userProfileResponse);
   if (userProfileResponse.error) {
     return { data: null, error: userProfileResponse.error };
   }
