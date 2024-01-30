@@ -1,10 +1,10 @@
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import UserContext from '../lib/context/User';
+import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
 
 const navigation = [
@@ -13,20 +13,19 @@ const navigation = [
 ];
 
 export default function Header() {
+  const cookies = useCookies();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const userContext = useContext(UserContext);
-  //   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const isLoggedIn = userContext?.user?.loggedIn;
-  const isLoading = userContext?.loading;
-  //   useEffect(() => {
-  //     const token = localStorage.getItem('jwt');
-  //     setIsLoggedIn(!!token);
-  //   }, []);
+  // const userContext = useContext(UserContext);
+
+  // const isLoggedIn = userContext?.user?.loggedIn;
+  // const isLoading = userContext?.loading;
+
+  const isLoggedIn = cookies.get('token') ?? false;
 
   const handleLogout = () => {
-    localStorage.clear();
-    userContext?.signOut();
+    cookies.remove('token');
+
     router.push('/login');
     // Redirect to home or login page as needed
   };
@@ -69,30 +68,29 @@ export default function Header() {
           </button>
         </div>
         <div className="hidden lg:flex">
-          {!isLoading &&
-            (isLoggedIn ? (
-              <>
-                {/* <Link
+          {isLoggedIn ? (
+            <>
+              {/* <Link
                 href="/profile"
                 className="text-sm font-semibold leading-6 text-gray-900"
               >
                 Profile
               </Link> */}
-                <button
-                  onClick={handleLogout}
-                  className="ml-4 text-sm font-semibold leading-6 text-gray-900"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className="text-sm font-semibold leading-6 text-gray-900"
+              <button
+                onClick={handleLogout}
+                className="ml-4 text-sm font-semibold leading-6 text-gray-900"
               >
-                Log in <span aria-hidden="true">&rarr;</span>
-              </Link>
-            ))}
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm font-semibold leading-6 text-gray-900"
+            >
+              Log in <span aria-hidden="true">&rarr;</span>
+            </Link>
+          )}
         </div>
       </nav>
       <Dialog
