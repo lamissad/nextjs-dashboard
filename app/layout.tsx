@@ -3,6 +3,7 @@ import { inter } from '@/app/ui/fonts';
 import { Metadata } from 'next';
 import Header from './ui/header';
 import { CookiesProvider } from 'next-client-cookies/server';
+import { AuthProvider } from './lib/context/User';
 
 export const metadata: Metadata = {
   title: {
@@ -20,12 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <CookiesProvider>
+        <AuthProvider>
           {' '}
           {/* Wrap with UserProvider */}
           <Header />
           {children}
-        </CookiesProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -5,18 +5,13 @@ import { authConfig } from './auth.config';
 export default NextAuth(authConfig).auth;
 
 export async function middleware(request: NextRequest) {
-  // Directly retrieve the token from the cookies
   const token = request.cookies.get('token');
 
-  // Apply the middleware logic only for the /profile route
   if (request.nextUrl.pathname === '/profile' && !token) {
-    // Construct the URL for the login page
     const loginUrl = new URL('/login', request.url);
-    // Redirect to the login page if the token is not present
     return NextResponse.redirect(loginUrl);
   }
 
-  // Allow the request to proceed normally for all other cases
   return NextResponse.next();
 }
 
