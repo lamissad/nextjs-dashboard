@@ -6,9 +6,11 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useCookies } from 'next-client-cookies';
+import { useAuth } from '../lib/context/User';
 
 const LoginWithGithub = () => {
-  const cookies = useCookies();
+  const { login } = useAuth();
+  // const cookies = useCookies();
   const router = useRouter();
 
   useEffect(() => {
@@ -25,7 +27,9 @@ const LoginWithGithub = () => {
 
         const userData = await response.json();
 
-        cookies.set('token', userData.jwt);
+        // cookies.set('token', userData.jwt);
+        console.log('userData', userData);
+        login(userData.jwt);
 
         router.push('/profile');
       } catch (error) {
@@ -36,7 +40,7 @@ const LoginWithGithub = () => {
     if (location.search.includes('access_token')) {
       fetchUserDetails();
     }
-  }, [router, cookies]);
+  }, [router, login]);
 
   const handleGithubLogin = () => {
     const strapiConnectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/connect/github`;

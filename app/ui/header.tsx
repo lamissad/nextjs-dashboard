@@ -6,6 +6,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useCookies } from 'next-client-cookies';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../lib/context/User';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -13,18 +14,12 @@ const navigation = [
 ];
 
 export default function Header() {
-  const cookies = useCookies();
+  const { isLoggedIn, logout } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // const userContext = useContext(UserContext);
-
-  // const isLoggedIn = userContext?.user?.loggedIn;
-  // const isLoading = userContext?.loading;
-
-  const isLoggedIn = cookies.get('token') ?? false;
 
   const handleLogout = () => {
-    cookies.remove('token');
+    logout();
 
     router.push('/login');
     // Redirect to home or login page as needed
@@ -70,12 +65,6 @@ export default function Header() {
         <div className="hidden lg:flex">
           {isLoggedIn ? (
             <>
-              {/* <Link
-                href="/profile"
-                className="text-sm font-semibold leading-6 text-gray-900"
-              >
-                Profile
-              </Link> */}
               <button
                 onClick={handleLogout}
                 className="ml-4 text-sm font-semibold leading-6 text-gray-900"
@@ -135,12 +124,6 @@ export default function Header() {
               <div className="py-6">
                 {isLoggedIn ? (
                   <>
-                    {/* <Link
-                      href="/profile"
-                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                    >
-                      Profile
-                    </Link> */}
                     <button
                       onClick={handleLogout}
                       className="-mx-3 mt-4 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"

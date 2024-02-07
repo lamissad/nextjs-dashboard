@@ -1,51 +1,61 @@
 'use client';
+// auth-context.tsx
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+import { useCookies } from 'next-client-cookies';
+import { useRouter } from 'next/navigation';
 
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+interface AuthContextType {
+  isLoggedIn: boolean;
+  login: (token: string) => void;
+  logout: () => void;
+}
 
-type User = {
-  name: string;
-  loggedIn: boolean;
-} | null;
-
-type UserContextType = {
-  user: User;
-  signIn: (userData: User) => void;
-  signOut: () => void;
-  loading: boolean;
+const defaultAuthContextValue: AuthContextType = {
+  isLoggedIn: false,
+  login: () => {},
+  logout: () => {},
 };
 
-const UserContext = createContext<UserContextType | null>(null);
+const AuthContext = createContext<AuthContextType>(defaultAuthContextValue);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [user, setUser] = useState<User>(null);
-  const [loading, setLoading] = useState(true);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const cookies = useCookies();
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if user data is stored in localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+    const token = cookies.get('token');
+    setIsLoggedIn(!!token);
+  }, [cookies]);
 
-  const signIn = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Save user data to localStorage
+  const login = (token: string) => {
+    console.log('token =>', token);
+    cookies.set('token', token);
+    setIsLoggedIn(true);
+    router.push('/profile');
   };
 
-  const signOut = () => {
-    setUser(null);
-    localStorage.removeItem('user'); // Clear user data from localStorage
+  const logout = () => {
+    cookies.remove('token');
+    setIsLoggedIn(false);
+    router.push('/login');
   };
 
   return (
-    <UserContext.Provider value={{ user, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
       {children}
-    </UserContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export default UserContext;
+export const useAuth = (): AuthContextType => useContext(AuthContext);
