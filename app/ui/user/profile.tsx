@@ -3,18 +3,15 @@ import Image from 'next/image';
 import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
 
-import { UserProfile } from '@/app/lib/definitions';
-import { getUser, getUsers, updateUser } from '../../lib/strapi/data';
+import { getUser, updateUser } from '../../lib/strapi/data';
 import { fetchGitHubData } from '@/app/lib/strapi/github';
+import { refreshProfile } from '@/app/lib/strapi/actions';
 
 export default async function Profile() {
   const cookies = getCookies();
   const token = cookies.get('token') ?? '';
-  console.log('username =>', token);
   let user = await getUser(token);
-  console.log('user =>', user);
 
   const { data } = await fetchGitHubData(user.username);
   if (data?.email === null) {
@@ -22,105 +19,77 @@ export default async function Profile() {
   }
   const updatedUser = await updateUser(data, token, user.id);
   user = updatedUser ?? user;
-  // useEffect(() => {
-  //   // TODO: Move it to middleware
-  //   // if (!isLoggedIn) router.push('/login');
 
-  //   loadProfile();
-  // }, [isLoggedIn, router]);
-
-  // const loadProfile = async () => {
-  //   // setLoading(true);
-  //   try {
-  //     const userData = await getUser();
-  //     const { data: githubData } = await fetchGitHubData(userData.username);
-  //     if (!githubData) {
-  //       // setLoading(false);
-  //       setUser(userData);
-  //       return;
-  //     }
-  //     setUser(githubData as UserProfile);
-  //   } catch (error) {
-  //     //   setLoading(false);
-  //     return (
-  //       // TODO: Create a component for this
-  //       <div className="flex h-full justify-center bg-gray-100">
-  //         <div className="flex flex-col items-center justify-center">
-  //           <h1 className="text-3xl font-bold">Error</h1>
-  //           <p className="text-gray-600">Something went wrong</p>
-  //         </div>
-  //       </div>
-  //     );
-  //   } finally {
-  //     //   setLoading(false);
-  //   }
-  // };
-
-  // const refreshProfile = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const userData = await getUser();
-  //     console.log(userData);
-  //     const { data, error } = await fetchGitHubData(userData.username);
-  //     if (error) return;
-  //     setUser(data as UserProfile);
-  //     await updateUser(data); // Update user data in DB
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   return (
-    <div className="flex h-full justify-center bg-gray-100">
-      {user && (
-        <Card className="my-10 w-full max-w-4xl rounded-lg bg-white p-6 shadow-lg">
-          <div className="flex items-center justify-between border-b border-gray-300 pb-4">
-            <div className="flex items-center">
-              <Image
-                src={
-                  user.image ||
-                  'https://avatars.githubusercontent.com/exampleuser'
-                }
-                alt="Profile Picture"
-                width={100}
-                height={100}
-                className="rounded-full"
-              />
-              <div className="ml-4">
-                <h1 className="text-2xl font-bold">{user.username}</h1>
-                <p className="text-sm text-gray-600">{user.email}</p>
+    <>
+      <div className="bg-white pb-16 pt-24 sm:pb-24 sm:pt-32 xl:pb-32">
+        <div className="bg-gray-900 pb-20 sm:pb-24 xl:pb-0">
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
+            <div className="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
+              <div className="relative aspect-[2/1] h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
+                {/* <img
+                  className="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl"
+                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2102&q=80"
+                  alt=""
+                /> */}
+                <Image
+                  src={
+                    user.image ||
+                    'https://avatars.githubusercontent.com/exampleuser'
+                  }
+                  alt="Profile Picture"
+                  width={384}
+                  height={532}
+                  className="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl"
+                />
               </div>
             </div>
-            {/* <Button
-              onClick={refreshProfile}
-              className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            >
-              <ArrowPathIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-              Profile
-            </Button> */}
-          </div>
-
-          <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-gray-700">{user.followers}</p>
-              <h3 className="text-lg font-semibold">Followers</h3>
+            <div className="w-full max-w-2xl xl:max-w-none xl:flex-auto xl:px-16 xl:py-24">
+              <figure className="relative isolate">
+                <blockquote className="text-xl font-semibold leading-8 text-white sm:text-2xl sm:leading-9">
+                  {/* <p>
+                    Gravida quam mi erat tortor neque molestie. Auctor aliquet
+                    at porttitor a enim nunc suscipit tincidunt nunc. Et non
+                    lorem tortor posuere. Nunc eu scelerisque interdum eget
+                    tellus non nibh scelerisque bibendum.
+                  </p> */}
+                  <div className="mb-4 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-gray-700">{user.followers}</p>
+                      <h3 className="text-lg font-semibold">Followers</h3>
+                    </div>
+                    <div>
+                      <p className="text-gray-700">{user.repository}</p>
+                      <h3 className="text-lg font-semibold">Repositories</h3>
+                    </div>
+                    <div>
+                      <p className="text-gray-700">{user.stars}</p>
+                      <h3 className="text-lg font-semibold">Stars</h3>
+                    </div>
+                  </div>
+                </blockquote>
+                <figcaption className="mt-8 text-base">
+                  <div className="font-semibold text-white">
+                    {user.username}
+                  </div>
+                  <div className="mt-1 text-gray-400">{user.email}</div>
+                </figcaption>
+              </figure>
             </div>
-            <div>
-              <p className="text-gray-700">{user.repository}</p>
-              <h3 className="text-lg font-semibold">Repositories</h3>
-            </div>
-            <div>
-              <p className="text-gray-700">{user.stars}</p>
-              <h3 className="text-lg font-semibold">Stars</h3>
-            </div>
           </div>
-          <div className="mt-5">
-            <h2 className="text-lg font-semibold">Bio</h2>
-            <p className="text-gray-700">{user.readme ?? 'No bio available'}</p>
-          </div>
-        </Card>
-      )}
-    </div>
+          {user && user.readme && (
+            <div className="bg-white py-16 sm:py-24">
+              <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div className="relative isolate flex flex-col gap-10 overflow-hidden bg-gray-900 px-6 py-24 shadow-2xl sm:rounded-3xl sm:px-24 xl:flex-row xl:items-center xl:py-32">
+                  <h2 className="max-w-lg text-lg font-light tracking-tight text-white sm:text-sm xl:max-w-none xl:flex-auto">
+                    {user.readme}
+                  </h2>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

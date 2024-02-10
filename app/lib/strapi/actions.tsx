@@ -2,6 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { fetchGitHubData } from '@/app/lib/strapi/github';
+import { getCookies } from 'next-client-cookies/server';
+import { getUser, updateUser } from './data';
+import { revalidatePath } from 'next/cache';
 
 export const fetchUserDetails = async (token: any) => {
   console.log('fetchUserDetails');
@@ -53,5 +57,26 @@ export const fetchUserDetails = async (token: any) => {
     //   data: null,
     //   error: `Error fetching GitHub user profile`,
     // };
+  }
+};
+
+export const refreshProfile = async () => {
+  const cookies = getCookies();
+  const token = cookies.get('token') ?? '';
+  try {
+    let user = await getUser(token);
+    const { data } = await fetchGitHubData(user.username);
+    if (data?.email === null) {
+      delete data.email;
+    }
+    const updatedUser = await updateUser(data, token, user.id);
+    user = updatedUser ?? user;
+    return user;
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  } finally {
+    revalidatePath('/profile');
+    redirect('/profile');
   }
 };

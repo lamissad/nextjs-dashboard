@@ -1,65 +1,72 @@
 import { EnvelopeIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { getUsers } from '../lib/strapi/data';
+import { refreshProfile } from '../lib/strapi/actions';
 
 export default async function UsersList() {
-  const defaultUsers = [
-    {
-      email: 'defaultUser1@example.com',
-      username: 'Default User 1',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      email: 'defaultUser2@example.com',
-      username: 'Default User 2',
-      image: 'https://via.placeholder.com/150',
-    },
-
-    // Add more default users as needed
-  ];
   const users = await getUsers();
-  console.log(users);
-  // const users = { data: defaultUsers };
+
   return (
     <>
-      <div className="flex h-screen bg-custom-beige">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="mb-8  text-3xl font-bold text-gray-800">Our Team</h1>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {users &&
-              users.data.map((person: any, index: number) => (
+      <div className="">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-xl text-center">
+            <h2 className="text-lg font-semibold leading-8 tracking-tight text-indigo-600">
+              Software Engineers
+            </h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              We have worked with thousands of amazing people
+            </p>
+          </div>
+          <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
+            <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
+              {users.data.map((user: any) => (
                 <div
-                  key={index}
-                  className="overflow-hidden rounded-lg bg-white shadow transition-shadow duration-300 hover:shadow-lg"
+                  key={user.id}
+                  className="pt-8 sm:inline-block sm:w-full sm:px-4"
                 >
-                  <div className="flex flex-col items-center p-4">
-                    <Image
-                      src={
-                        person.image
-                          ? person.image
-                          : 'https://via.placeholder.com/150'
-                      }
-                      alt={person.username}
-                      width={100}
-                      height={100}
-                      className="rounded-full"
-                    />
-                    <h3 className="mt-4 text-lg font-semibold text-gray-800">
-                      {person.username ? person.username : 'Default User'}
-                    </h3>
-                    <p className="text-gray-600">{person.email}</p>
-                  </div>
-                  <div className="bg-gray-100 p-4">
-                    <a
-                      href={`mailto:${person.email}`}
-                      className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      <EnvelopeIcon className="h-5 w-5" />
-                      Send Email
-                    </a>
-                  </div>
+                  <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
+                    <figcaption className=" flex items-center gap-x-4">
+                      <Image
+                        src={
+                          user.image
+                            ? user.image
+                            : 'https://via.placeholder.com/150'
+                        }
+                        alt={user.username}
+                        width={500}
+                        height={500}
+                        className="h-20 w-20 rounded-full bg-gray-50"
+                      />
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {user.username}
+                        </div>
+                        {/* <div className="text-gray-600">{`@${user.username}`}</div> */}
+                        <blockquote className="text-gray-900">
+                          <p>{`${user.email}`}</p>
+                        </blockquote>
+                      </div>
+                    </figcaption>
+                  </figure>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="relative isolate flex flex-col gap-10 overflow-hidden bg-gray-900 px-6 py-24 shadow-2xl sm:rounded-3xl sm:px-24 xl:flex-row xl:items-center xl:py-32">
+            <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl xl:max-w-none xl:flex-auto">
+              Is Your Profile Reflecting the Latest You?
+            </h2>
+            <form action={refreshProfile}>
+              <button className="flex-none rounded-md bg-white px-5 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Update Now
+              </button>
+            </form>
           </div>
         </div>
       </div>

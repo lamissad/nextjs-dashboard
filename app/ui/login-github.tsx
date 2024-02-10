@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useCookies } from 'next-client-cookies';
 import { useAuth } from '../lib/context/User';
 
 const LoginWithGithub = () => {
   const { login } = useAuth();
+  const [loading, setLoading] = React.useState(false);
   // const cookies = useCookies();
   const router = useRouter();
 
@@ -27,8 +27,6 @@ const LoginWithGithub = () => {
 
         const userData = await response.json();
 
-        // cookies.set('token', userData.jwt);
-        console.log('userData', userData);
         login(userData.jwt);
 
         router.push('/profile');
