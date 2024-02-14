@@ -7,8 +7,6 @@ export default function LoginPage({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  console.log('params=>', params);
-  console.log('searchParams =>', searchParams);
   return (
     <main
       className="flex items-center justify-center md:h-screen"

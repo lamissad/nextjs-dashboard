@@ -8,8 +8,6 @@ import { getUser, updateUser } from './data';
 import { revalidatePath } from 'next/cache';
 
 export const fetchUserDetails = async (token: any) => {
-  console.log('fetchUserDetails');
-  console.log('token', token);
   try {
     const accessToken = token.token.access_token;
     const rawAccessToken = token.token['raw[access_token]'];
@@ -34,7 +32,6 @@ export const fetchUserDetails = async (token: any) => {
 
       credentials: 'include', // Keep this if your API requires cookies to be sent
     });
-    // console.log('response', response);
     if (!response.ok) {
       return {
         data: null,

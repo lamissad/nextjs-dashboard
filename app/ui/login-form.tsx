@@ -12,11 +12,11 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import UserContext from '../lib/context/User';
+// import UserContext from '../lib/context/User';
 
 export default function LoginForm() {
   const router = useRouter();
-  const userContext = useContext(UserContext);
+  // const userContext = useContext(UserContext);
 
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
   const [text, setText] = useState('Loading...');
@@ -30,25 +30,21 @@ export default function LoginForm() {
       { credentials: 'include' },
     )
       .then((res) => {
-        console.log('RES', res);
         if (res.status !== 200) {
           throw new Error(`Couldn't login to Strapi. Status: ${res.status}`);
         }
-        console.log('RESULTTT v=>', res);
 
         return res;
       })
       .then((res) => {
-        console.log('Response text:', res);
         return res.json();
       })
       .then((res) => {
         // Successfully logged with Strapi
         // Now saving the jwt to use it for future authenticated requests to Strapi
-        console.log('JJJWWWWTT', res);
         localStorage.setItem('jwt', res.jwt);
         localStorage.setItem('username', res.user.username);
-        userContext?.signIn({ name: res.user.username, loggedIn: true });
+        // userContext?.signIn({ name: res.user.username, loggedIn: true });
         setText(
           'You have been successfully logged in. You will be redirected in a few seconds...',
         );
@@ -60,7 +56,7 @@ export default function LoginForm() {
         console.log('An error occurred');
         setText('An error occurred, please see the developer console.');
       });
-  }, [router, userContext]);
+  }, [router]);
 
   function handleGithubLogin(): void {
     //fetch from strapi

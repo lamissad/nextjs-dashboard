@@ -39,7 +39,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [cookies]);
 
   const login = (token: string) => {
-    console.log('token =>', token);
     cookies.set('token', token);
     setIsLoggedIn(true);
     router.push('/profile');

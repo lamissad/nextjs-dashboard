@@ -49,7 +49,6 @@ export async function getUser(jwt: string) {
 }
 
 export async function updateUser(data: any, jwt: string, id: number) {
-  console.log('updateUser', data, jwt);
   if (!jwt) {
     throw new Error('JWT not found');
   }
@@ -66,11 +65,6 @@ export async function updateUser(data: any, jwt: string, id: number) {
         body: JSON.stringify(data),
       },
     );
-    console.log(
-      'url',
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${id}`,
-    );
-    console.log('userRes', userRes);
 
     if (!userRes.ok) {
       throw new Error(`Couldn't update user data. Status: ${userRes.status}`);
