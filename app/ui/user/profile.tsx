@@ -3,10 +3,11 @@ import Image from 'next/image';
 import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-
+import ReactMarkdown from 'react-markdown';
 import { getUser, updateUser } from '../../lib/strapi/data';
 import { fetchGitHubData } from '@/app/lib/strapi/github';
 import { refreshProfile } from '@/app/lib/strapi/actions';
+import remarkGfm from 'remark-gfm';
 
 export default async function Profile() {
   const cookies = getCookies();
@@ -81,9 +82,14 @@ export default async function Profile() {
             <div className="bg-white py-16 sm:py-24">
               <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="relative isolate flex flex-col gap-10 overflow-hidden bg-gray-900 px-6 py-24 shadow-2xl sm:rounded-3xl sm:px-24 xl:flex-row xl:items-center xl:py-32">
-                  <h2 className="max-w-lg text-lg font-light tracking-tight text-white sm:text-sm xl:max-w-none xl:flex-auto">
-                    {user.readme}
+                  <h2 className="max-w-lg text-xl font-light tracking-tight text-white sm:text-lg xl:max-w-none xl:flex-auto">
+                    Behind the Code:
                   </h2>
+                  <h3 className="max-w-lg text-lg font-light tracking-tight text-white sm:text-sm xl:max-w-none xl:flex-auto">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {user.readme}
+                    </ReactMarkdown>
+                  </h3>
                 </div>
               </div>
             </div>
