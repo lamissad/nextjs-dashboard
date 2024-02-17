@@ -1,4 +1,3 @@
-import { EnvelopeIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { getUsers } from '../lib/strapi/data';
 import { refreshProfile } from '../lib/strapi/actions';
@@ -20,37 +19,37 @@ export default async function UsersList() {
           </div>
           <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
             <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
-              {users.data.map((user: any) => (
-                <div
-                  key={user.id}
-                  className="pt-8 sm:inline-block sm:w-full sm:px-4"
-                >
-                  <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
-                    <figcaption className=" flex items-center gap-x-4">
-                      <Image
-                        src={
-                          user.image
-                            ? user.image
-                            : 'https://via.placeholder.com/150'
-                        }
-                        alt={user.username}
-                        width={500}
-                        height={500}
-                        className="h-20 w-20 rounded-full bg-gray-50"
-                      />
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          {user.username}
+              {users &&
+                users.data.map((user: any) => (
+                  <div
+                    key={user.id}
+                    className="pt-8 sm:inline-block sm:w-full sm:px-4"
+                  >
+                    <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
+                      <figcaption className=" flex items-center gap-x-4">
+                        <Image
+                          src={
+                            user.image
+                              ? user.image
+                              : 'https://via.placeholder.com/150'
+                          }
+                          alt={user.username}
+                          width={500}
+                          height={500}
+                          className="h-20 w-20 rounded-full bg-gray-50"
+                        />
+                        <div className="overflow-hidden">
+                          <div className="font-semibold text-gray-900">
+                            {user.username}
+                          </div>
+                          <blockquote className="text-gray-900">
+                            <p>{`${user.email}`}</p>
+                          </blockquote>
                         </div>
-                        {/* <div className="text-gray-600">{`@${user.username}`}</div> */}
-                        <blockquote className="text-gray-900">
-                          <p>{`${user.email}`}</p>
-                        </blockquote>
-                      </div>
-                    </figcaption>
-                  </figure>
-                </div>
-              ))}
+                      </figcaption>
+                    </figure>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

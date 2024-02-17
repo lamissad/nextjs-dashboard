@@ -1,25 +1,37 @@
 import { getCookies } from 'next-client-cookies/server';
 import Image from 'next/image';
-import { ArrowPathIcon } from '@heroicons/react/20/solid';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import ReactMarkdown from 'react-markdown';
 import { getUser, updateUser } from '../../lib/strapi/data';
 import { fetchGitHubData } from '@/app/lib/strapi/github';
-import { refreshProfile } from '@/app/lib/strapi/actions';
 import remarkGfm from 'remark-gfm';
 
 export default async function Profile() {
   const cookies = getCookies();
   const token = cookies.get('token') ?? '';
-  let user = await getUser(token);
+  const userResponse = await getUser(token);
 
-  const { data } = await fetchGitHubData(user.username);
-  if (data?.email === null) {
-    delete data.email;
+  // Early return if user fetch was unsuccessful
+  if (!userResponse.data) {
+    return <div>Error loading user data: {userResponse.error}</div>;
   }
-  const updatedUser = await updateUser(data, token, user.id);
-  user = updatedUser ?? user;
+
+  let user = userResponse.data;
+
+  // Fetch additional GitHub data only if user data is successfully fetched
+  if (user) {
+    const githubResponse = await fetchGitHubData(user.username);
+    if (githubResponse.data && githubResponse.data.email === null) {
+      delete githubResponse.data.email;
+    }
+    if (githubResponse.data) {
+      const updateResponse = await updateUser(
+        githubResponse.data,
+        token,
+        user.id,
+      );
+      user = updateResponse.data ?? user;
+    }
+  }
 
   return (
     <>
@@ -28,11 +40,6 @@ export default async function Profile() {
           <div className="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
             <div className="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
               <div className="relative aspect-[2/1] h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
-                {/* <img
-                  className="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl"
-                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2102&q=80"
-                  alt=""
-                /> */}
                 <Image
                   src={
                     user.image ||
@@ -48,12 +55,6 @@ export default async function Profile() {
             <div className="w-full max-w-2xl xl:max-w-none xl:flex-auto xl:px-16 xl:py-24">
               <figure className="relative isolate">
                 <blockquote className="text-xl font-semibold leading-8 text-white sm:text-2xl sm:leading-9">
-                  {/* <p>
-                    Gravida quam mi erat tortor neque molestie. Auctor aliquet
-                    at porttitor a enim nunc suscipit tincidunt nunc. Et non
-                    lorem tortor posuere. Nunc eu scelerisque interdum eget
-                    tellus non nibh scelerisque bibendum.
-                  </p> */}
                   <div className="mb-4 grid grid-cols-3 gap-4 text-center">
                     <div>
                       <p className="text-gray-700">{user.followers}</p>

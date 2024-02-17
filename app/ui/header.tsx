@@ -22,7 +22,6 @@ export default function Header() {
     logout();
 
     router.push('/login');
-    // Redirect to home or login page as needed
   };
 
   return (

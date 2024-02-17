@@ -11,47 +11,58 @@ export async function getUsers() {
     );
 
     if (response.status !== 200) {
-      // Handle non-200 responses if needed
-      throw new Error(`Failed to fetch users. Status: ${response.status}`);
+      // Log the error or handle it as needed without throwing
+      console.error(`Failed to fetch users. Status: ${response.status}`);
+      return {
+        data: null,
+        error: `Failed to fetch users. Status: ${response.status}`,
+      };
     }
 
     const data = await response.json();
-    return {
-      data,
-      error: null,
-    };
+    return { data, error: null };
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return {
-      data: null,
-      error: error,
-    };
+    return { data: null, error: 'Error fetching users' };
   }
 }
 
 export async function getUser(jwt: string) {
-  // const jwt = localStorage.getItem('jwt');
   if (!jwt) {
-    throw new Error('JWT not found');
+    console.error('JWT not found');
+    return { data: null, error: 'JWT not found' };
   }
 
-  const userRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-    {
-      credentials: 'include',
-      headers: { Authorization: `Bearer ${jwt}` },
-    },
-  );
-  if (!userRes.ok) {
-    throw new Error(`Couldn't fetch user data. Status: ${userRes.status}`);
+  try {
+    const userRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+      {
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${jwt}` },
+      },
+    );
+
+    if (!userRes.ok) {
+      console.error(`Couldn't fetch user data. Status: ${userRes.status}`);
+      return {
+        data: null,
+        error: `Couldn't fetch user data. Status: ${userRes.status}`,
+      };
+    }
+
+    const data = await userRes.json();
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return { data: null, error: 'Error fetching user' };
   }
-  return await userRes.json();
 }
 
 export async function updateUser(data: any, jwt: string, id: number) {
   if (!jwt) {
-    throw new Error('JWT not found');
+    console.log('JWT not found');
+    return { data: null, error: 'JWT not found' };
   }
+
   try {
     const userRes = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${id}`,
@@ -67,11 +78,17 @@ export async function updateUser(data: any, jwt: string, id: number) {
     );
 
     if (!userRes.ok) {
-      throw new Error(`Couldn't update user data. Status: ${userRes.status}`);
+      console.error(`Couldn't update user data. Status: ${userRes.status}`);
+      return {
+        data: null,
+        error: `Couldn't update user data. Status: ${userRes.status}`,
+      };
     }
 
-    return await userRes.json();
+    const updatedData = await userRes.json();
+    return { data: updatedData, error: null };
   } catch (error) {
-    console.log('error update', error);
+    console.error('Error updating user:', error);
+    return { data: null, error: 'Error updating user' };
   }
 }

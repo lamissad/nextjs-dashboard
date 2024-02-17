@@ -23,7 +23,6 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <AuthProvider>
           {' '}
-          {/* Wrap with UserProvider */}
           <Header />
           {children}
         </AuthProvider>
