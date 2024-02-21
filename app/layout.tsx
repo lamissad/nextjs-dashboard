@@ -21,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <AuthProvider>
-          {' '}
-          <Header />
-          {children}
-        </AuthProvider>
+        <CookiesProvider>
+          <AuthProvider>
+            {' '}
+            <Header />
+            {children}
+          </AuthProvider>
+        </CookiesProvider>
       </body>
     </html>
   );
