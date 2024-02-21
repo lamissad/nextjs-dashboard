@@ -61,7 +61,14 @@ export const refreshProfile = async () => {
   const cookies = getCookies();
   const token = cookies.get('token') ?? '';
   try {
-    let user = await getUser(token);
+    const response = await getUser(token);
+    let user;
+    if (response.data) {
+      user = response.data.user;
+    } else {
+      console.error('Error:', response.error);
+      return null;
+    }
     const { data } = await fetchGitHubData(user.username);
     if (data?.email === null) {
       delete data.email;
